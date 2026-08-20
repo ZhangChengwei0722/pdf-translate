@@ -1,0 +1,48 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile Python sources
+        run: python -m py_compile scripts/run_pipeline.py scripts/figure_pipeline.py
+
+      - name: Check launcher help
+        shell: pwsh
+        run: python scripts/run_pipeline.py --help
+
+      - name: Check public file layout
+        shell: pwsh
+        run: |
+          $required = @(
+            "SKILL.md",
+            "README.md",
+            "LICENSE",
+            "CONTRIBUTING.md",
+            "SECURITY.md",
+            "CODE_OF_CONDUCT.md",
+            "THIRD_PARTY_NOTICES.md",
+            "scripts/run_pipeline.py",
+            "scripts/figure_pipeline.py",
+            "scripts/pdf2zh-zh.ps1"
+          )
+          foreach ($path in $required) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+              throw "Required public file is missing: $path"
+            }
+          }

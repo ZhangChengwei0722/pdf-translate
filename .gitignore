@@ -1,0 +1,28 @@
+# Python bytecode and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Secrets and local configuration
+.env
+.env.*
+*.key
+*.pem
+
+# User documents, previews, and generated translation artifacts
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.session/
+preview/
+previews/
+
+# OS and editor metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
