@@ -1,6 +1,6 @@
 # PDF 翻译 Skill
 
-[English version / 英文版](README.md)
+[英文版](README.md)
 
 `pdf-translate` 是一个可移植的 Skill，用于将科研论文 PDF 翻译成中文，同时保留原始文档和上游 PDFMathTranslate 工作流。
 
