@@ -32,6 +32,7 @@ jobs:
           $required = @(
             "SKILL.md",
             "README.md",
+            "README.zh-CN.md",
             "LICENSE",
             "CONTRIBUTING.md",
             "SECURITY.md",
