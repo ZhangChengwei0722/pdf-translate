@@ -145,6 +145,7 @@ SKILL.md                         Skill contract and Agent-facing workflow
 scripts/                         PowerShell launcher and Python pipeline
 README.md                        User and contributor documentation
 LICENSE                          GNU AGPL v3 or later
+NOTICE                           Project copyright and dependency boundary
 THIRD_PARTY_NOTICES.md           Dependency and attribution notes
 CONTRIBUTING.md                  Contribution and testing rules
 SECURITY.md                      Security reporting policy
