@@ -15,7 +15,7 @@ The skill adds a conservative raster-figure pipeline around PDFMathTranslate (pd
 - Preserves scientific tokens such as units, gene-style names, panel identifiers, and formula-like text during translation.
 - Isolates figure failures: one failed or unsafe figure does not fail the whole paper.
 - Supports exactly three output modes: `mono`, `dual`, and `mono+dual`.
-- Supports exactly three raster-figure review modes: `multimodal`, `human`, and `none`.
+- Supports four raster-figure modes: `multimodal`, `human`, `none`, and `off`.
 - Returns a small JSON result on stdout and cleans temporary review sessions after completion, cancellation, or failure.
 
 The provider is deliberately not hard-coded. Arguments after `--` are forwarded to PDFMathTranslate in their original order, so the provider and credentials remain under the user's existing PDFMathTranslate configuration.
@@ -86,15 +86,16 @@ Before every run, the Agent must confirm two user choices. If one choice is alre
 
 Only the selected output(s) are handed to the user. Existing files are never overwritten; a unique suffix is used when a destination name already exists.
 
-### 2. Raster-figure review mode
+### 2. Raster-figure mode
 
 | Mode | Behavior |
 | --- | --- |
 | `multimodal` | The Agent inspects generated figure previews and accepts or rejects affected figures. |
 | `human` | The workflow pauses with previews and waits for the user's accept/reject decision. |
 | `none` | No figure preview review is performed. |
+| `off` | Skip raster-figure OCR, translation, redraw, and review; run PDFMathTranslate/BabelDOC only. |
 
-If no raster figure is safely modified, review is automatically `not_applicable` and no session is created.
+For `off`, or if no raster figure is safely modified, review is automatically `not_applicable` and no session is created.
 
 ### Start a translation
 
