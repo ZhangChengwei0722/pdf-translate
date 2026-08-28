@@ -14,7 +14,7 @@
 - 翻译时保护单位、基因样式名称、panel identifier 和公式样式文本等 scientific token。
 - 隔离单图失败：一张图失败或不安全不会导致整篇论文失败。
 - 严格支持三种输出模式：`mono`、`dual`、`mono+dual`。
-- 严格支持三种 raster figure 检查模式：`multimodal`、`human`、`none`。
+- 支持四种 raster figure 处理模式：`multimodal`、`human`、`none`、`off`。
 - 在 stdout 返回小型 JSON，并在完成、取消或失败后清理临时 review session。
 
 provider 不被硬编码。`--` 后的参数按原顺序透传给 PDFMathTranslate，因此 provider 和凭据继续由用户现有的 PDFMathTranslate 配置管理。
@@ -85,15 +85,16 @@ skills/
 
 只向用户交付其选择的输出。既有文件永不覆盖；目标名称已存在时使用唯一后缀。
 
-### 2. Raster figure 检查模式
+### 2. Raster figure 处理模式
 
 | 模式 | 行为 |
 | --- | --- |
 | `multimodal` | Agent 检查生成的 figure preview，并接受或拒绝受影响的图片。 |
 | `human` | 工作流展示 preview 后暂停，等待用户 accept/reject。 |
 | `none` | 不生成或检查 figure preview。 |
+| `off` | 跳过 raster figure OCR、翻译、重绘和检查，只运行 PDFMathTranslate/BabelDOC。 |
 
-如果没有 raster figure 被安全修改，review 自动记为 `not_applicable`，不会暂停，也不会创建 session。
+选择 `off`，或没有 raster figure 被安全修改时，review 自动记为 `not_applicable`，不会暂停，也不会创建 session。
 
 ### 开始翻译
 

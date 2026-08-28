@@ -10,7 +10,7 @@ Thank you for helping improve PDF Translator Skill. Contributions should keep th
 
 ## Implementation rules
 
-- Preserve the exactly-two-choice interaction: output mode and raster-figure review mode.
+- Preserve the exactly-two-choice interaction: output mode and raster-figure mode. The raster-figure mode values are `multimodal`, `human`, `none`, and `off`.
 - Keep translation provider handling delegated to PDFMathTranslate. Do not add a forced provider or provider-specific secret handling.
 - Keep the original PDF immutable and keep unselected outputs out of the delivery directory.
 - Treat unsafe or failed raster-figure edits as retained originals with warnings; do not fail the entire paper for one figure.

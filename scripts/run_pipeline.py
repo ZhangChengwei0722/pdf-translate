@@ -2,7 +2,7 @@
 
 Usage:
   run_pipeline.py start --input <pdf> --output-mode <mono|dual|mono+dual>
-                       --review-mode <multimodal|human|none> [-- <pdf2zh args...>]
+                       --review-mode <multimodal|human|none|off> [-- <pdf2zh args...>]
   run_pipeline.py continue --session <dir> --accept <ids> --reject <ids>
                            [-- <pdf2zh args...>]
 
@@ -37,7 +37,7 @@ ALLOWED_VERSIONS = {"pdf2zh-next": "2.9.0", "BabelDOC": "0.6.2"}
 TEMP_ROOT = Path(tempfile.gettempdir()) / "pdf-translator"
 SESSION_SCHEMA_VERSION = 1
 OUTPUT_MODES = ("mono", "dual", "mono+dual")
-REVIEW_MODES = ("multimodal", "human", "none")
+REVIEW_MODES = ("multimodal", "human", "none", "off")
 
 
 # ---------------------------------------------------------------------------
@@ -442,10 +442,10 @@ def run_fallback(
 
 def classify_review(edits: list[dict[str, Any]], review_mode: str) -> str:
     """Single source of truth for the review split:
-    no successful figure edits -> not_applicable (no pause, no preview);
+    off or no successful figure edits -> not_applicable (no pause, no preview);
     none -> not_reviewed (continue directly); human/multimodal with edits ->
     pending (minimal temp session)."""
-    if not edits:
+    if review_mode == "off" or not edits:
         return "not_applicable"
     if review_mode == "none":
         return "not_reviewed"
@@ -492,10 +492,12 @@ def cmd_start(opts: argparse.Namespace, raw_args: list[str]) -> int:
                 "reason": f"unsupported versions {installed}; expected {ALLOWED_VERSIONS}; raster figures not processed",
             }
         ]
+        if opts.review_mode == "off":
+            warnings = []
         payload = run_fallback(input_pdf, raw_args, opts.output_mode, target_dir, warnings)
         return emit(payload, 1 if payload["status"] == "failed" else 0)
 
-    if importlib.util.find_spec("rapidocr_onnxruntime") is None:
+    if opts.review_mode != "off" and importlib.util.find_spec("rapidocr_onnxruntime") is None:
         warnings = [{"page": None, "figure_id": None, "reason": "rapidocr-onnxruntime not installed; raster figures not processed"}]
         return emit(run_fallback(input_pdf, raw_args, opts.output_mode, target_dir, warnings), 0)
 
@@ -511,15 +513,18 @@ def cmd_start(opts: argparse.Namespace, raw_args: list[str]) -> int:
         settings.pdf.no_dual = opts.output_mode == "mono"
         settings.translation.output = str(temp_root / "out")
 
-        try:
-            from pdf2zh_next.high_level import create_babeldoc_config
+        if opts.review_mode == "off":
+            prepared_pdf, edits, results, warnings = work_pdf, [], [], []
+        else:
+            try:
+                from pdf2zh_next.high_level import create_babeldoc_config
 
-            config = create_babeldoc_config(settings, work_pdf)
-        except Exception as exc:
-            warnings = [{"page": None, "figure_id": None, "reason": f"DocLayout/config unavailable ({exc}); raster figures not processed"}]
-            return emit(run_fallback(input_pdf, raw_args, opts.output_mode, target_dir, warnings), 0)
+                config = create_babeldoc_config(settings, work_pdf)
+            except Exception as exc:
+                warnings = [{"page": None, "figure_id": None, "reason": f"DocLayout/config unavailable ({exc}); raster figures not processed"}]
+                return emit(run_fallback(input_pdf, raw_args, opts.output_mode, target_dir, warnings), 0)
 
-        prepared_pdf, edits, results, warnings = process_figures(config, work_pdf, temp_root)
+            prepared_pdf, edits, results, warnings = process_figures(config, work_pdf, temp_root)
 
         translated = sum(1 for item in results if item.get("status") == "translated")
         retained = sum(1 for item in results if item.get("status") == "retained")
@@ -628,7 +633,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("command", choices=("start", "continue"))
     parser.add_argument("--input", help="Input PDF path (start)")
     parser.add_argument("--output-mode", choices=OUTPUT_MODES, help="mono | dual | mono+dual")
-    parser.add_argument("--review-mode", choices=REVIEW_MODES, help="multimodal | human | none")
+    parser.add_argument("--review-mode", choices=REVIEW_MODES, help="multimodal | human | none | off")
     parser.add_argument("--session", help="Review session directory (continue)")
     parser.add_argument("--accept", help="Comma-separated figure ids to accept (continue)")
     parser.add_argument("--reject", help="Comma-separated figure ids to reject (continue)")
