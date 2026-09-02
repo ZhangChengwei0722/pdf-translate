@@ -58,7 +58,7 @@ The PowerShell launcher expects `python` and the PDFMathTranslate `pdf2zh` execu
 
 ## Install the skill
 
-Copy this repository directory into the skill directory used by your compatible Agent host, keeping `SKILL.md` beside `scripts/`. For a Codex-compatible installation the resulting layout is:
+Copy this repository directory into the skill directory used by your compatible Agent host, keeping `SKILL.md` beside `scripts/`. For a Codex-compatible installation, the resulting layout is:
 
 ```text
 skills/
